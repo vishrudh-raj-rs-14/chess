@@ -934,7 +934,6 @@ document.addEventListener("mouseup", (e) => {
   isDown = false;
 });
 document.addEventListener("touchend", (e) => {
-  console.log(touchx, touchy);
   if (isDown && activePiece.dataset.color == turn) {
     const coords = [
       Math.floor(
@@ -946,7 +945,6 @@ document.addEventListener("touchend", (e) => {
           document.querySelector(".piece").getBoundingClientRect().height
       ),
     ];
-    console.log(coords);
     const oldCoords = [
       Math.floor(
         (activeOriginalPos.left -
@@ -1192,6 +1190,18 @@ function onClickEvent(e) {
   const highlights = document.querySelector(".highlights");
   const cir = Array.from(document.querySelectorAll(".circle"));
   const sq = Array.from(document.querySelectorAll(".highlightSq"));
+  let x = 0;
+  let y = 0;
+  if (e.touches && e.touches[0]) {
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } else if (e.originalEvent && e.originalEvent.changedTouches[0]) {
+    x = e.originalEvent.changedTouches[0].clientX;
+    y = e.originalEvent.changedTouches[0].clientY;
+  } else if (e.clientX && e.clientY) {
+    x = e.clientX;
+    y = e.clientY;
+  }
   if (
     e.target != chessBoard &&
     !cir.includes(e.target) &&
@@ -1204,11 +1214,11 @@ function onClickEvent(e) {
     if (clicked && activePiece.dataset.color == turn) {
       const coords = [
         Math.floor(
-          (e.clientX - chessBoard.getBoundingClientRect().left) /
+          (x - chessBoard.getBoundingClientRect().left) /
             document.querySelector(".piece").getBoundingClientRect().width
         ),
         Math.floor(
-          (e.clientY - chessBoard.getBoundingClientRect().top) /
+          (y - chessBoard.getBoundingClientRect().top) /
             document.querySelector(".piece").getBoundingClientRect().height
         ),
       ];
@@ -1523,7 +1533,6 @@ const createPiece = (pieceName, ps) => {
     // console.log(chessBoard.getBoundingClientRect());
   });
   piece.addEventListener("touchstart", (e) => {
-    console.log("Running");
     isDown = true;
     // console.log(e.target);
     // const touch =
@@ -1531,7 +1540,6 @@ const createPiece = (pieceName, ps) => {
     // console.log("this");
     // console.log(touch.pageX, touch.pageY);
     const ele = e.target;
-    console.log(ele);
     let x = ele.getBoundingClientRect();
     let w = ele.offsetHeight;
     if (clicked && parseInt(piece.dataset.color) != turn) {

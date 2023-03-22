@@ -11,6 +11,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  touch-action: none;
 }
 
 .chess-board {
@@ -129,6 +130,10 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
+  body {
+    width: 100vw;
+    height: 100vh;
+  }
   .chess-board {
     width: 70vw;
     height: 70vw;
@@ -136,12 +141,20 @@ body {
 }
 
 @media only screen and (max-width: 500px) {
+  body {
+    width: 100vw;
+    height: 100vh;
+  }
   .chess-board {
     width: 85vw;
     height: 85vw;
   }
 }
 @media only screen and (max-width: 400px) {
+  body {
+    width: 100vw;
+    height: 100vh;
+  }
   .chess-board {
     width: 92vw;
     height: 92vw;

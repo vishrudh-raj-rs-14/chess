@@ -29,6 +29,8 @@ const captureAudio = new Audio("./chess_assets/capture.mp3");
 const moveAudio = new Audio("./chess_assets/move-self.mp3");
 const over = new Audio("./chess_assets/check-mate.mp3");
 let turn = 1;
+let touchx = 0;
+let touchy = 0;
 let canEnpass = false;
 let enpassPiece = null;
 let state = false;
@@ -635,18 +637,45 @@ function checkGameOver(color) {
   }
 }
 
-const updatePos = (ele, piece, mx) => {
-  piece.style.left = `${
-    mx.clientX - (chessBoard.getBoundingClientRect().left + ele.width / 2)
-  }px`;
-  piece.style.top = `${
-    mx.clientY - (chessBoard.getBoundingClientRect().top + ele.height / 2)
-  }px`;
+const updatePos = (ele, piece, mx, t = true, x = 0, y = 0) => {
+  if (t) {
+    piece.style.left = `${
+      mx.clientX - (chessBoard.getBoundingClientRect().left + ele.width / 2)
+    }px`;
+    piece.style.top = `${
+      mx.clientY - (chessBoard.getBoundingClientRect().top + ele.height / 2)
+    }px`;
+  } else {
+    piece.style.left = `${
+      x - (chessBoard.getBoundingClientRect().left + ele.width / 2)
+    }px`;
+    piece.style.top = `${
+      y - (chessBoard.getBoundingClientRect().top + ele.height / 2)
+    }px`;
+  }
 };
 
 document.addEventListener("mousemove", (e) => {
   if (isDown) {
     updatePos(activeOriginalPos, activePiece, e);
+  }
+});
+document.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  touchx = 0;
+  touchy = 0;
+  if (e.touches && e.touches[0]) {
+    touchx = e.touches[0].clientX;
+    touchy = e.touches[0].clientY;
+  } else if (e.originalEvent && e.originalEvent.changedTouches[0]) {
+    touchx = e.originalEvent.changedTouches[0].clientX;
+    touchy = e.originalEvent.changedTouches[0].clientY;
+  } else if (e.clientX && e.clientY) {
+    touchx = e.clientX;
+    touchy = e.clientY;
+  }
+  if (isDown) {
+    updatePos(activeOriginalPos, activePiece, e, false, touchx, touchy);
   }
 });
 
@@ -662,6 +691,260 @@ document.addEventListener("mouseup", (e) => {
           document.querySelector(".piece").getBoundingClientRect().height
       ),
     ];
+    const oldCoords = [
+      Math.floor(
+        (activeOriginalPos.left -
+          chessBoard.getBoundingClientRect().left +
+          activePiece.offsetWidth / 5) /
+          document.querySelector(".piece").getBoundingClientRect().width
+      ),
+      Math.floor(
+        (activeOriginalPos.top -
+          chessBoard.getBoundingClientRect().top +
+          activePiece.offsetHeight / 5) /
+          document.querySelector(".piece").getBoundingClientRect().height
+      ),
+    ];
+
+    const valideMoves = validMove(oldCoords, activePiece, board, turn);
+    if (
+      JSON.stringify(oldCoords) != JSON.stringify(coords) &&
+      coords[1] >= 0 &&
+      coords[1] <= 7 &&
+      coords[0] >= 0 &&
+      coords[0] <= 7 &&
+      arrIn(valideMoves, coords)
+    ) {
+      if (
+        activePiece.dataset.name.toLowerCase() == "p" &&
+        ((activePiece.dataset.color == 1 && coords[1] == 4) ||
+          (activePiece.dataset.color == 0 && coords[1] == 3)) &&
+        ((activePiece.dataset.color == 1 && oldCoords[1] == 6) ||
+          (activePiece.dataset.color == 0 && oldCoords[1] == 1))
+      ) {
+        canEnpass = true;
+        enpassPiece = coords;
+      } else {
+        if (
+          canEnpass &&
+          coords[0] == enpassPiece[0] &&
+          coords[1] + (activePiece.dataset.color == 1 ? 1 : -1) ==
+            enpassPiece[1] &&
+          activePiece.dataset.name.toLowerCase() == "p"
+        ) {
+          captureAudio.play();
+          board[enpassPiece[1]][enpassPiece[0]] = undefined;
+        }
+        enpassPiece = null;
+        canEnpass = false;
+      }
+
+      if (activePiece.dataset.name == "K") {
+        if (coords[0] == 6 && castleRightsWhiteKingSide) {
+          moveAudio.play();
+          board[7][7] = undefined;
+          board[7][5] = ["R", 1];
+        }
+        if (coords[0] == 2 && castleRightsWhiteQueenSide) {
+          moveAudio.play();
+          board[7][0] = undefined;
+          board[7][3] = ["R", 1];
+        }
+        castleRightsWhiteKingSide = false;
+        castleRightsWhiteQueenSide = false;
+      } else if (activePiece.dataset.name == "k") {
+        if (coords[1] == 6 && castleRightsBlackKingSide) {
+          moveAudio.play();
+          board[0][7] = undefined;
+          board[0][5] = ["r", 1];
+        }
+        if (coords[0] == 2 && castleRightsBlackQueenSide) {
+          moveAudio.play();
+          board[0][0] = undefined;
+          board[0][3] = ["r", 1];
+        }
+        castleRightsBlackKingSide = false;
+        castleRightsBlackQueenSide = false;
+      } else if (activePiece.dataset.name == "r") {
+        if (oldCoords[0] == 7) {
+          castleRightsBlackKingSide = false;
+        } else if (oldCoords[0] == 0) {
+          castleRightsBlackQueenSide = false;
+        }
+      } else if (activePiece.dataset.name == "R") {
+        if (oldCoords[0] == 7) {
+          castleRightsWhiteKingSide = false;
+        } else if (oldCoords[0] == 0) {
+          castleRightsWhiteQueenSide = false;
+        }
+      }
+      if (
+        activePiece.dataset.name.toLowerCase() == "p" &&
+        coords[1] == (activePiece.dataset.color == 1 ? 0 : 7)
+      ) {
+        const promotion = document.createElement("div");
+        promotion.innerHTML = `<div data-name="Q"><img src="./chess_assets/wq.png"  /></div>
+        <div data-name="B"><img src="./chess_assets/wb.png"  /></div>
+        <div data-name="N"><img src="./chess_assets/wn.png"  /></div>
+        <div data-name="P"><img src="./chess_assets/wp.png"  /></div>
+        <div data-name="x"><img src="./chess_assets/x.svg" /></div>`;
+        promotion.style.width = activeOriginalPos.width;
+        promotion.classList.add("promotion");
+        if (activePiece.dataset.color == 1) {
+          promotion.style.top = 0;
+        } else {
+          promotion.style.bottom = 0;
+        }
+
+        promotion.style.left = `${
+          coords[0] * activePiece.getBoundingClientRect().width
+        }px`;
+        const highlights = document.querySelector(".highlights");
+        highlights.append(promotion);
+        promotion.style.width = `${
+          chessBoard.getBoundingClientRect().width / 8
+        }px`;
+        for (let i = 0; i < promotion.children.length; i++) {
+          promotion.children[i].addEventListener("click", (ele) => {
+            if (ele.target.dataset.name == "x") {
+              setBoard(board);
+            } else {
+              turn = turn == 0 ? 1 : 0;
+              if (board[coords[1]][coords[0]]) {
+                captureAudio.play();
+              } else {
+                moveAudio.play();
+              }
+              board[oldCoords[1]][oldCoords[0]] = undefined;
+              board[coords[1]][coords[0]] = [
+                ele.target.dataset.name,
+                parseInt(activePiece.dataset.color),
+              ];
+              let tempAct = activePiece.getBoundingClientRect();
+              clearHighLight();
+              setBoard(board);
+              createHighLight(
+                "rgba(255,255,0,.4)",
+                activeOriginalPos.top - chessBoard.getBoundingClientRect().top,
+                activeOriginalPos.left - chessBoard.getBoundingClientRect().left
+              );
+
+              createHighLight(
+                "rgba(255,255,0,.4)",
+                coords[1] * tempAct.height,
+                coords[0] * tempAct.width
+              );
+              state = checkGameOver(activePiece.dataset.color == 1 ? 0 : 1);
+              if (state) {
+                console.log(state);
+              }
+            }
+          });
+        }
+      } else {
+        turn = turn == 0 ? 1 : 0;
+        if (board[coords[1]][coords[0]]) {
+          captureAudio.play();
+        } else {
+          moveAudio.play();
+        }
+        board[oldCoords[1]][oldCoords[0]] = undefined;
+        board[coords[1]][coords[0]] = [
+          activePiece.dataset.name,
+          parseInt(activePiece.dataset.color),
+        ];
+        let tempAct = activePiece.getBoundingClientRect();
+        setBoard(board);
+        clicked = false;
+        clearHighLight();
+        createHighLight(
+          "rgba(255,255,0,.4)",
+          activeOriginalPos.top - chessBoard.getBoundingClientRect().top,
+          activeOriginalPos.left - chessBoard.getBoundingClientRect().left
+        );
+
+        createHighLight(
+          "rgba(255,255,0,.4)",
+          coords[1] * tempAct.height,
+          coords[0] * tempAct.width
+        );
+        state = checkGameOver(activePiece.dataset.color == 1 ? 0 : 1);
+      }
+    } else {
+      board[oldCoords[1]][oldCoords[0]] = [
+        activePiece.dataset.name,
+        parseInt(activePiece.dataset.color),
+      ];
+      setBoard(board);
+      clearHighLight();
+      createHighLight(
+        "rgba(255,255,0,.4)",
+        activeOriginalPos.top - chessBoard.getBoundingClientRect().top,
+        activeOriginalPos.left - chessBoard.getBoundingClientRect().left
+      );
+      clicked = true;
+      const valid_moves = validMove(oldCoords, activePiece, board, turn);
+      for (let i = 0; i < valid_moves.length; i++) {
+        let left =
+          valid_moves[i][0] * (chessBoard.getBoundingClientRect().width / 8);
+        let top =
+          valid_moves[i][1] * (chessBoard.getBoundingClientRect().height / 8);
+        if (board[valid_moves[i][1]][valid_moves[i][0]]) {
+          createHighLight("dot", top, left, true);
+        } else {
+          createHighLight("dot", top, left);
+        }
+      }
+    }
+    if (state) {
+      console.log(state);
+    }
+  } else if (isDown && activePiece.dataset.color != turn) {
+    const oldCoords = [
+      Math.floor(
+        (activeOriginalPos.left -
+          chessBoard.getBoundingClientRect().left +
+          activePiece.offsetWidth / 5) /
+          document.querySelector(".piece").getBoundingClientRect().width
+      ),
+      Math.floor(
+        (activeOriginalPos.top -
+          chessBoard.getBoundingClientRect().top +
+          activePiece.offsetHeight / 5) /
+          document.querySelector(".piece").getBoundingClientRect().height
+      ),
+    ];
+    board[oldCoords[1]][oldCoords[0]] = [
+      activePiece.dataset.name,
+      parseInt(activePiece.dataset.color),
+    ];
+    setBoard(board);
+    clicked = false;
+
+    clearHighLight();
+    createHighLight(
+      "rgba(255,255,0,.4)",
+      activeOriginalPos.top - chessBoard.getBoundingClientRect().top,
+      activeOriginalPos.left - chessBoard.getBoundingClientRect().left
+    );
+    activePiece.classList.remove("grabbing");
+  }
+  isDown = false;
+});
+document.addEventListener("touchend", (e) => {
+  console.log(touchx, touchy);
+  if (isDown && activePiece.dataset.color == turn) {
+    const coords = [
+      Math.floor(
+        (touchx - chessBoard.getBoundingClientRect().left) /
+          document.querySelector(".piece").getBoundingClientRect().width
+      ),
+      Math.floor(
+        (touchy - chessBoard.getBoundingClientRect().top) /
+          document.querySelector(".piece").getBoundingClientRect().height
+      ),
+    ];
+    console.log(coords);
     const oldCoords = [
       Math.floor(
         (activeOriginalPos.left -
@@ -1237,7 +1520,63 @@ const createPiece = (pieceName, ps) => {
     // console.log(window.event.clientX);
     // console.log(chessBoard.getBoundingClientRect());
   });
+  piece.addEventListener("touchstart", (e) => {
+    console.log("Running");
+    isDown = true;
+    // console.log(e.target);
+    // const touch =
+    //   e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+    // console.log("this");
+    // console.log(touch.pageX, touch.pageY);
+    const ele = e.target;
+    console.log(ele);
+    let x = ele.getBoundingClientRect();
+    let w = ele.offsetHeight;
+    if (clicked && parseInt(piece.dataset.color) != turn) {
+      isDown = false;
+      onClickEvent(e);
+    }
+    activePiece = ele;
+    ele.classList.add("grabbing");
+    activeOriginalPos = ele.getBoundingClientRect();
+    if (!promoting) {
+      clearHighLight();
+      createHighLight(
+        "rgba(255,255,0,.4)",
+        x.top - chessBoard.getBoundingClientRect().top,
+        x.left - chessBoard.getBoundingClientRect().left
+      );
+    }
+    const oldCoords = [
+      Math.floor(
+        (x.left - chessBoard.getBoundingClientRect().left + w / 5) /
+          document.querySelector(".piece").getBoundingClientRect().width
+      ),
+      Math.floor(
+        (x.top - chessBoard.getBoundingClientRect().top + w / 5) /
+          document.querySelector(".piece").getBoundingClientRect().height
+      ),
+    ];
+    if (activePiece.offsetWidth != 0 && !promoting) {
+      const valid_moves = validMove(oldCoords, activePiece, board, turn);
+      for (let i = 0; i < valid_moves.length; i++) {
+        let left =
+          valid_moves[i][0] * (chessBoard.getBoundingClientRect().width / 8);
+        let top =
+          valid_moves[i][1] * (chessBoard.getBoundingClientRect().height / 8);
+        if (board[valid_moves[i][1]][valid_moves[i][0]]) {
+          createHighLight("dot", top, left, true);
+        } else {
+          createHighLight("dot", top, left);
+        }
+      }
+    }
+    promoting = false;
 
+    // updatePos(ele, piece, e);
+    // console.log(window.event.clientX);
+    // console.log(chessBoard.getBoundingClientRect());
+  });
   piece.innerHTML = `<img src="./chess_assets/${pieceName}.png" />`;
   return piece;
 };

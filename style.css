@@ -11,13 +11,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  touch-action: none;
 }
 
 .chess-board {
   width: 40vw;
   height: 40vw;
   position: relative;
+  touch-action: none;
 }
 
 .piece {

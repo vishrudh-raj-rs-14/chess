@@ -660,8 +660,10 @@ document.addEventListener("mousemove", (e) => {
     updatePos(activeOriginalPos, activePiece, e);
   }
 });
-document.addEventListener("touchmove", (e) => {
+chessBoard.addEventListener("touchmove", (e) => {
   e.preventDefault();
+});
+document.addEventListener("touchmove", (e) => {
   touchx = 0;
   touchy = 0;
   if (e.touches && e.touches[0]) {

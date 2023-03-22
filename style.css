@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: #302e2b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chess-board {
+  width: 40vw;
+  height: 40vw;
+  position: relative;
+}
+
+.piece {
+  width: calc(100% / 8);
+  height: calc(100% / 8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+}
+
+.chess-board img {
+  pointer-events: none;
+  user-drag: none;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.chess-board > img {
+  z-index: -5;
+}
+
+.piece img {
+  /* height: 75%; */
+  pointer-events: none;
+  user-drag: none;
+  user-select: none;
+}
+
+.piece:hover {
+  cursor: grab;
+}
+
+.grabbing {
+  cursor: grabbing !important;
+  z-index: 2;
+}
+
+.highlightSq {
+  position: absolute;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: #fd5720bd; */
+}
+
+.light {
+  background-color: #d2e3ee;
+}
+.dark {
+  background-color: #5d89b2;
+}
+
+.invisible {
+  display: none;
+}
+
+.highlights {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.promotion {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  /* max-height: 300px; */
+  background-color: white;
+  border-radius: 5px;
+  z-index: 5;
+}
+.promotion img {
+  height: 70px;
+}
+.promotion div:last-of-type {
+  background-color: #f1f1f1;
+  padding: 7px 4px;
+}
+.promotion div:last-of-type img {
+  height: 15px !important;
+  margin: 0px;
+  /* padding: 20px; */
+}
+
+.circle {
+  height: 30%;
+  width: 30%;
+  border-radius: 100%;
+  background-color: rgba(42, 42, 42, 0.24);
+}
+.outer-circle {
+  height: 95%;
+  width: 95%;
+  border-radius: 100%;
+  border: 5px solid rgba(42, 42, 42, 0.24);
+}
+
+@media only screen and (max-width: 1100px) {
+  .chess-board {
+    width: 58vw;
+    height: 58vw;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .chess-board {
+    width: 70vw;
+    height: 70vw;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .chess-board {
+    width: 85vw;
+    height: 85vw;
+  }
+}
+@media only screen and (max-width: 400px) {
+  .chess-board {
+    width: 92vw;
+    height: 92vw;
+  }
+}

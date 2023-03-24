@@ -740,7 +740,7 @@ document.addEventListener("mouseup", (e) => {
         enpassPiece = null;
         canEnpass = false;
       }
-
+      console.log(activePiece.dataset.name == "k");
       if (activePiece.dataset.name == "K") {
         if (coords[0] == 6 && castleRightsWhiteKingSide) {
           moveAudio.play();
@@ -755,7 +755,7 @@ document.addEventListener("mouseup", (e) => {
         castleRightsWhiteKingSide = false;
         castleRightsWhiteQueenSide = false;
       } else if (activePiece.dataset.name == "k") {
-        if (coords[1] == 6 && castleRightsBlackKingSide) {
+        if (coords[0] == 6 && castleRightsBlackKingSide) {
           moveAudio.play();
           board[0][7] = undefined;
           board[0][5] = ["r", 1];
@@ -785,10 +785,26 @@ document.addEventListener("mouseup", (e) => {
         coords[1] == (activePiece.dataset.color == 1 ? 0 : 7)
       ) {
         const promotion = document.createElement("div");
-        promotion.innerHTML = `<div data-name="Q"><img src="./chess_assets/wq.png"  /></div>
-        <div data-name="B"><img src="./chess_assets/wb.png"  /></div>
-        <div data-name="N"><img src="./chess_assets/wn.png"  /></div>
-        <div data-name="P"><img src="./chess_assets/wp.png"  /></div>
+        promotion.innerHTML = `<div data-name=${
+          activePiece.dataset.color == 1 ? "Q" : "q"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }q.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "B" : "b"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }b.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "N" : "n"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }n.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "R" : "r"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }r.png"  /></div>
         <div data-name="x"><img src="./chess_assets/x.svg" /></div>`;
         promotion.style.width = activeOriginalPos.width;
         promotion.classList.add("promotion");
@@ -797,7 +813,7 @@ document.addEventListener("mouseup", (e) => {
         } else {
           promotion.style.bottom = 0;
         }
-
+        console.log(coords[0] * activePiece.getBoundingClientRect().width);
         promotion.style.left = `${
           coords[0] * activePiece.getBoundingClientRect().width
         }px`;
@@ -836,6 +852,7 @@ document.addEventListener("mouseup", (e) => {
                 coords[1] * tempAct.height,
                 coords[0] * tempAct.width
               );
+              console.log(activePiece);
               state = checkGameOver(activePiece.dataset.color == 1 ? 0 : 1);
               if (state) {
                 console.log(state);
@@ -1037,10 +1054,26 @@ document.addEventListener("touchend", (e) => {
         coords[1] == (activePiece.dataset.color == 1 ? 0 : 7)
       ) {
         const promotion = document.createElement("div");
-        promotion.innerHTML = `<div data-name="Q"><img src="./chess_assets/wq.png"  /></div>
-        <div data-name="B"><img src="./chess_assets/wb.png"  /></div>
-        <div data-name="N"><img src="./chess_assets/wn.png"  /></div>
-        <div data-name="P"><img src="./chess_assets/wp.png"  /></div>
+        promotion.innerHTML = `<div data-name=${
+          activePiece.dataset.color == 1 ? "Q" : "q"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }q.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "B" : "b"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }b.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "N" : "n"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }n.png"  /></div>
+        <div data-name=${
+          activePiece.dataset.color == 1 ? "R" : "r"
+        }><img src="./chess_assets/${
+          activePiece.dataset.color == 1 ? "w" : "b"
+        }r.png"  /></div>
         <div data-name="x"><img src="./chess_assets/x.svg" /></div>`;
         promotion.style.width = activeOriginalPos.width;
         promotion.classList.add("promotion");
@@ -1321,17 +1354,40 @@ function onClickEvent(e) {
             castleRightsWhiteQueenSide = false;
           }
         }
-        if (activePiece.dataset.name == "P" && coords[1] == 0) {
+        if (
+          activePiece.dataset.name.toLowerCase() == "p" &&
+          coords[1] == (activePiece.dataset.color == 1 ? 0 : 7)
+        ) {
           const promotion = document.createElement("div");
-          promotion.innerHTML = `<div data-name="Q"><img src="./chess_assets/wq.png"  /></div>
-            <div data-name="B"><img src="./chess_assets/wb.png"  /></div>
-            <div data-name="N"><img src="./chess_assets/wn.png"  /></div>
-            <div data-name="P"><img src="./chess_assets/wp.png"  /></div>
-            <div data-name="x"><img src="./chess_assets/x.svg" /></div>`;
+          promotion.innerHTML = `<div data-name=${
+            activePiece.dataset.color == 1 ? "Q" : "q"
+          }><img src="./chess_assets/${
+            activePiece.dataset.color == 1 ? "w" : "b"
+          }q.png"  /></div>
+          <div data-name=${
+            activePiece.dataset.color == 1 ? "B" : "b"
+          }><img src="./chess_assets/${
+            activePiece.dataset.color == 1 ? "w" : "b"
+          }b.png"  /></div>
+          <div data-name=${
+            activePiece.dataset.color == 1 ? "N" : "n"
+          }><img src="./chess_assets/${
+            activePiece.dataset.color == 1 ? "w" : "b"
+          }n.png"  /></div>
+          <div data-name=${
+            activePiece.dataset.color == 1 ? "R" : "r"
+          }><img src="./chess_assets/${
+            activePiece.dataset.color == 1 ? "w" : "b"
+          }r.png"  /></div>
+          <div data-name="x"><img src="./chess_assets/x.svg" /></div>`;
           promoting = true;
           promotion.style.width = activeOriginalPos.width;
           promotion.classList.add("promotion");
-          promotion.style.top = 0;
+          if (activePiece.dataset.color == 1) {
+            promotion.style.top = 0;
+          } else {
+            promotion.style.bottom = 0;
+          }
           promotion.style.left = `${
             coords[0] *
             document.querySelector(".piece").getBoundingClientRect().width
@@ -1355,7 +1411,7 @@ function onClickEvent(e) {
                 board[oldCoords[1]][oldCoords[0]] = undefined;
                 board[coords[1]][coords[0]] = [
                   ele.target.dataset.name,
-                  parseInt(activePiece.dataset.color),
+                  parseInt(activePiece.dataset.color == 1 ? 0 : 1),
                 ];
                 let tempAct = activePiece.getBoundingClientRect();
                 clearHighLight();
@@ -1373,7 +1429,7 @@ function onClickEvent(e) {
                   coords[1] * tempAct.height,
                   coords[0] * tempAct.width
                 );
-                state = checkGameOver(activePiece.dataset.color == 1 ? 0 : 1);
+                state = checkGameOver(activePiece.dataset.color == 1 ? 1 : 0);
                 if (state) {
                   console.log(state);
                 }

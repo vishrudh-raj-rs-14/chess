@@ -1024,7 +1024,7 @@ document.addEventListener("touchend", (e) => {
         castleRightsWhiteKingSide = false;
         castleRightsWhiteQueenSide = false;
       } else if (activePiece.dataset.name == "k") {
-        if (coords[1] == 6 && castleRightsBlackKingSide) {
+        if (coords[0] == 6 && castleRightsBlackKingSide) {
           moveAudio.play();
           board[0][7] = undefined;
           board[0][5] = ["r", 1];
@@ -1329,7 +1329,7 @@ function onClickEvent(e) {
           castleRightsWhiteKingSide = false;
           castleRightsWhiteQueenSide = false;
         } else if (activePiece.dataset.name == "k") {
-          if (coords[1] == 6 && castleRightsBlackKingSide) {
+          if (coords[0] == 6 && castleRightsBlackKingSide) {
             moveAudio.play();
             board[0][7] = undefined;
             board[0][5] = ["r", 1];
